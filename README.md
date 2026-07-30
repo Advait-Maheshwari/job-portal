@@ -9,7 +9,7 @@ This project does not use paid APIs or paid cloud services. It runs locally with
 ## Project Structure
 
 ```text
-10-job-portal/
+job-portal/
   frontend/                 React.js + Bootstrap UI
     src/
       api.js                API helper functions
