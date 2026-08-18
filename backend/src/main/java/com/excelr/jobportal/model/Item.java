@@ -1,17 +1,28 @@
 package com.excelr.jobportal.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 
 @Entity
 public class Item {
-  @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
   private String name;
   private String owner;
   private String status;
 
-  protected Item() {}
-  public Item(String name, String owner, String status) { this.name = name; this.owner = owner; this.status = status; }
+  protected Item() {
+  }
+
+  public Item(String name, String owner, String status) {
+    this.name = name;
+    this.owner = owner;
+    this.status = status;
+  }
+
   public Long getId() { return id; }
   public String getName() { return name; }
   public String getOwner() { return owner; }

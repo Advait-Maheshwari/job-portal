@@ -1,84 +1,160 @@
 import { useEffect, useMemo, useState } from "react";
 import { api } from "./api";
 
-const fallbackItems = [
-  {
-    "id": 1,
-    "name": "Java Developer",
-    "owner": "Admin",
-    "status": "Active"
-  },
-  {
-    "id": 2,
-    "name": "React Engineer",
-    "owner": "Manager",
-    "status": "Review"
-  },
-  {
-    "id": 3,
-    "name": "Spring Boot Intern",
-    "owner": "Team",
-    "status": "Planned"
-  }
-];
-const next = { Planned: "Review", Review: "Active", Active: "Closed", Closed: "Planned" };
+const emptyForm = { id: null, name: "", owner: "", status: "Planned" };
+const statusFlow = { Planned: "Review", Review: "Active", Active: "Closed", Closed: "Planned" };
 
 export default function App() {
-  const [items, setItems] = useState(fallbackItems);
-  const [name, setName] = useState("");
+  const [items, setItems] = useState([]);
+  const [form, setForm] = useState(emptyForm);
   const [query, setQuery] = useState("");
-  const visible = useMemo(() => items.filter((item) => item.name.toLowerCase().includes(query.toLowerCase())), [items, query]);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => { api.list().then(setItems).catch(() => setItems(fallbackItems)); }, []);
+  const visibleItems = useMemo(
+    () => items.filter((item) => item.name.toLowerCase().includes(query.toLowerCase())),
+    [items, query]
+  );
 
-  async function addItem(event) {
+  useEffect(() => {
+    loadItems();
+  }, []);
+
+  async function loadItems() {
+    try {
+      setLoading(true);
+      setItems(await api.list());
+      setError("");
+    } catch {
+      setError("Backend is not running or database connection failed.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function updateForm(event) {
+    setForm({ ...form, [event.target.name]: event.target.value });
+  }
+
+  function validateForm() {
+    if (form.name.trim().length < 2) return "Name must contain at least 2 characters.";
+    if (form.owner.trim().length < 2) return "Owner must contain at least 2 characters.";
+    return "";
+  }
+
+  async function saveItem(event) {
     event.preventDefault();
-    if (!name.trim()) return;
-    const draft = { name: name.trim(), owner: "You", status: "Planned" };
-    setItems([await api.create(draft).catch(() => ({ ...draft, id: Date.now() })), ...items]);
-    setName("");
+    const validationError = validateForm();
+    if (validationError) return setError(validationError);
+
+    const item = { ...form, name: form.name.trim(), owner: form.owner.trim() };
+    try {
+      const saved = item.id ? await api.update(item) : await api.create(item);
+      setItems(item.id ? items.map((row) => row.id === saved.id ? saved : row) : [saved, ...items]);
+      setForm(emptyForm);
+      setError("");
+    } catch {
+      setError("Could not save the record. Please check the backend.");
+    }
   }
 
   async function moveStatus(item) {
-    const updated = { ...item, status: next[item.status] };
-    setItems(items.map((row) => row.id === item.id ? updated : row));
-    api.update(updated).catch(() => null);
+    const updated = { ...item, status: statusFlow[item.status] };
+    try {
+      const saved = await api.update(updated);
+      setItems(items.map((row) => row.id === saved.id ? saved : row));
+    } catch {
+      setError("Could not update the status.");
+    }
+  }
+
+  async function deleteItem(id) {
+    if (!confirm("Delete this record?")) return;
+    try {
+      await api.remove(id);
+      setItems(items.filter((item) => item.id !== id));
+    } catch {
+      setError("Could not delete the record.");
+    }
   }
 
   return (
     <main>
-      <section className="hero">
+      <nav className="navbar navbar-expand-lg bg-white border-bottom">
+        <div className="container">
+          <a className="navbar-brand fw-bold" href="#home">Job Portal</a>
+          <div className="navbar-nav flex-row gap-3">
+            <a className="nav-link" href="#records">Records</a>
+            <a className="nav-link" href="#form">Form</a>
+          </div>
+        </div>
+      </nav>
+
+      <section id="home" className="hero">
         <div className="container py-5">
           <span className="badge text-bg-success mb-3">Recruitment</span>
           <h1 className="display-5 fw-bold">Job Portal</h1>
-          <p className="lead text-secondary">Manage jobs with a clean React, Bootstrap, Spring Boot, and MySQL stack.</p>
+          <p className="lead text-secondary">Manage jobs with React, Bootstrap, Spring Boot, and MySQL.</p>
         </div>
       </section>
 
       <section className="container py-4">
-        <div className="toolbar">
-          <input className="form-control" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search jobs" />
-          <form className="input-group" onSubmit={addItem}>
-            <input className="form-control" value={name} onChange={(event) => setName(event.target.value)} placeholder="Add jobs" />
-            <button className="btn btn-success">Add</button>
-          </form>
-        </div>
+        {error && <div className="alert alert-warning">{error}</div>}
+        <div className="row g-4">
+          <div className="col-lg-4" id="form">
+            <form className="panel" onSubmit={saveItem}>
+              <h2 className="h5 mb-3">{form.id ? "Edit Record" : "Add Record"}</h2>
+              <label className="form-label">Name</label>
+              <input className="form-control mb-3" name="name" value={form.name} onChange={updateForm} placeholder="Enter name" />
+              <label className="form-label">Owner</label>
+              <input className="form-control mb-3" name="owner" value={form.owner} onChange={updateForm} placeholder="Enter owner" />
+              <label className="form-label">Status</label>
+              <select className="form-select mb-3" name="status" value={form.status} onChange={updateForm}>
+                <option>Planned</option>
+                <option>Review</option>
+                <option>Active</option>
+                <option>Closed</option>
+              </select>
+              <div className="d-flex gap-2">
+                <button className="btn btn-success" type="submit">{form.id ? "Update" : "Add"}</button>
+                {form.id && <button className="btn btn-outline-secondary" type="button" onClick={() => setForm(emptyForm)}>Cancel</button>}
+              </div>
+            </form>
+          </div>
 
-        <div className="row g-3 mt-1">
-          {visible.map((item) => (
-            <div className="col-md-6 col-xl-4" key={item.id}>
-              <article className="card h-100">
-                <div className="card-body">
-                  <div className="d-flex justify-content-between gap-3">
-                    <h2 className="h5">{item.name}</h2>
-                    <span className="badge text-bg-light">{item.status}</span>
-                  </div>
-                  <p className="text-secondary mb-4">Owner: {item.owner}</p>
-                  <button className="btn btn-outline-success btn-sm" onClick={() => moveStatus(item)}>Move status</button>
+          <div className="col-lg-8" id="records">
+            <div className="panel">
+              <div className="d-flex flex-column flex-md-row justify-content-between gap-3 mb-3">
+                <h2 className="h5 mb-0">Jobs</h2>
+                <input className="form-control search-box" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search records" />
+              </div>
+
+              {loading ? (
+                <p className="text-secondary mb-0">Loading records...</p>
+              ) : visibleItems.length === 0 ? (
+                <p className="text-secondary mb-0">No records found.</p>
+              ) : (
+                <div className="row g-3">
+                  {visibleItems.map((item) => (
+                    <div className="col-md-6" key={item.id}>
+                      <article className="record-card">
+                        <div className="d-flex justify-content-between gap-3">
+                          <h3 className="h6">{item.name}</h3>
+                          <span className="badge text-bg-light">{item.status}</span>
+                        </div>
+                        <p className="text-secondary mb-3">Owner: {item.owner}</p>
+                        <div className="d-flex flex-wrap gap-2">
+                          <button className="btn btn-outline-success btn-sm" onClick={() => moveStatus(item)}>Move status</button>
+                          <button className="btn btn-outline-primary btn-sm" onClick={() => setForm(item)}>Edit</button>
+                          <button className="btn btn-outline-danger btn-sm" onClick={() => deleteItem(item.id)}>Delete</button>
+                        </div>
+                      </article>
+                    </div>
+                  ))}
                 </div>
-              </article>
+              )}
             </div>
-          ))}
+          </div>
         </div>
       </section>
     </main>

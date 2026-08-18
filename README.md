@@ -1,46 +1,74 @@
 # Job Portal
 
-A clean full-stack recruitment project using React.js, Bootstrap, Java, Spring Boot, and MySQL.
+A student-friendly full-stack recruitment project built with React.js, Bootstrap, Java, Spring Boot, and MySQL.
 
-## Zero-cost design
+## Technology Used
 
-This project does not use paid APIs or paid cloud services. It runs locally with open-source/free tools only: React.js, Bootstrap, Java, Spring Boot, and MySQL Community Edition.
+- React.js, HTML, CSS, JavaScript, Bootstrap
+- Java and Spring Boot
+- MySQL
+
+## Zero-cost Design
+
+This project runs locally with free tools only. It does not use paid APIs, paid databases, cloud services, Firebase, MongoDB, Tailwind, Express, or Next.js.
 
 ## Project Structure
 
 ```text
 job-portal/
-  frontend/                 React.js + Bootstrap UI
+  frontend/
     src/
-      api.js                API helper functions
-      App.jsx               Main dashboard screen
-      main.jsx              React entry point
-      styles.css            App styling
-  backend/                  Spring Boot REST API
+      api.js
+      App.jsx
+      main.jsx
+      styles.css
+  backend/
     src/main/java/com/excelr/jobportal/
-      config/               Startup seed data
-      controller/           REST endpoints
-      model/                JPA entity
-      repository/           Database access
-      service/              Business logic
-  database/schema.sql       MySQL schema
+      config/
+      controller/
+      model/
+      repository/
+      service/
+  database/
+    schema.sql
+```
+
+## Features
+
+- Add jobs
+- View saved records
+- Search records
+- Edit details
+- Change status
+- Delete records
+- Basic form validation and API error messages
+
+## Run Backend
+
+Set your MySQL password once:
+
+```powershell
+$env:MYSQL_PASSWORD="your-mysql-password"
+```
+
+Then run:
+
+```powershell
+cd "E:\Excelr Projects\job-portal\backend"
+"E:\Excelr Projects\tools\apache-maven-3.9.16\bin\mvn.cmd" spring-boot:run
 ```
 
 ## Run Frontend
 
-```bash
-cd frontend
+```powershell
+cd "E:\Excelr Projects\job-portal\frontend"
 npm install
 npm run dev
 ```
 
-## Run Backend
+## API Endpoints
 
-Create the database from `database/schema.sql`, then update the MySQL password in `backend/src/main/resources/application.properties`.
-
-```bash
-cd backend
-mvn spring-boot:run
-```
-
-API: `/api/job-portal/items`
+- `GET /api/job-portal/items`
+- `POST /api/job-portal/items`
+- `PUT /api/job-portal/items/{id}`
+- `DELETE /api/job-portal/items/{id}`
