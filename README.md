@@ -1,64 +1,40 @@
 # Job Portal
 
-A student-friendly full-stack recruitment project built with React.js, Bootstrap, Java, Spring Boot, and MySQL.
+Publish job opportunities and manage their hiring status.
 
-## Technology Used
+## Technology
 
-- React.js, HTML, CSS, JavaScript, Bootstrap
-- Java and Spring Boot
+- React.js, HTML, CSS, JavaScript and Bootstrap
+- Java 17 and Spring Boot
 - MySQL
-
-## Zero-cost Design
-
-This project runs locally with free tools only. It does not use paid APIs, paid databases, cloud services, Firebase, MongoDB, Tailwind, Express, or Next.js.
-
-## Project Structure
-
-```text
-job-portal/
-  frontend/
-    src/
-      api.js
-      App.jsx
-      main.jsx
-      styles.css
-  backend/
-    src/main/java/com/excelr/jobportal/
-      config/
-      controller/
-      model/
-      repository/
-      service/
-  database/
-    schema.sql
-```
 
 ## Features
 
-- Add jobs
-- View saved records
-- Search records
-- Edit details
-- Change status
-- Delete records
-- Basic form validation and API error messages
+- MySQL-backed Sign Up, Login and Logout
+- BCrypt password hashing and session authentication
+- CSRF-protected create, update, delete and logout requests
+- Protected REST APIs with validation and clear error responses
+- Dashboard, Home, Records and Form pages
+- Search plus complete Create, Read, Update and Delete operations
+- Responsive desktop sidebar and mobile navigation
 
-## Run Backend
+## Demo Login
 
-Set your MySQL password once:
+`admin@demo.com` / `Admin@123`
+
+Change `DEMO_ADMIN_PASSWORD` and disable `SEED_DEMO_DATA` outside local development.
+
+## Run
+
+Start MySQL, then open one PowerShell window:
 
 ```powershell
 $env:MYSQL_PASSWORD="your-mysql-password"
-```
-
-Then run:
-
-```powershell
 cd "E:\Excelr Projects\job-portal\backend"
-"E:\Excelr Projects\tools\apache-maven-3.9.16\bin\mvn.cmd" spring-boot:run
+mvn spring-boot:run
 ```
 
-## Run Frontend
+Open a second PowerShell window:
 
 ```powershell
 cd "E:\Excelr Projects\job-portal\frontend"
@@ -66,9 +42,17 @@ npm install
 npm run dev
 ```
 
-## API Endpoints
+Open `http://localhost:5173`.
 
-- `GET /api/job-portal/items`
-- `POST /api/job-portal/items`
-- `PUT /api/job-portal/items/{id}`
-- `DELETE /api/job-portal/items/{id}`
+## Main APIs
+
+- `GET /api/auth/csrf`
+- `POST /api/auth/signup`
+- `POST /api/auth/login`
+- `GET /api/auth/me`
+- `POST /api/auth/logout`
+- `GET /api/jobs?search=`
+- `GET /api/jobs/{id}`
+- `POST /api/jobs`
+- `PUT /api/jobs/{id}`
+- `DELETE /api/jobs/{id}`

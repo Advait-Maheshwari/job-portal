@@ -1,6 +1,6 @@
 {
   "name": "job-portal",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
   "scripts": {
     "dev": "vite",
@@ -8,11 +8,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "bootstrap": "latest",
-    "react": "latest",
-    "react-dom": "latest"
+    "bootstrap": "5.3.8",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
   },
   "devDependencies": {
-    "vite": "latest"
+    "vite": "8.1.5"
   }
 }

@@ -1,7 +1,8 @@
 node_modules/
-target/
 dist/
-smoke-*.log
+target/
 .env
 .idea/
 .vscode/
+.playwright-cli/
+*.log
